@@ -1,17 +1,45 @@
-# practice6_2
+# Practice 6.2: Kanban Board варіант 5
 
-A new Flutter project.
+## Архітектура та Особливості реалізації
 
-## Getting Started
+1. Управління станом:
+   - BoardModel (ChangeNotifier): керує списком завдань, станом завантаження (loading, success, error), а також операціями додавання (addTask), редагування (updateTask) та зміни статусу (moveTask).
+   - FilterModel (ChangeNotifier): відповідає за фільтрацію задач за виконавцем та пріоритетом.
 
-This project is a starting point for a Flutter application.
+2. Дерево віджетів та оптимізація:
+   - Використання гранулярного оновлення за допомогою Selector, що дозволяє оновлювати лише окремі колонки або віджети фільтрації без зайвого переридування всього екрана.
+   - Розподіл на логічні модулі: екрани (screens/), сервіси (services/fake_api.dart), моделі (models/task.dart) та віджети (widgets/).
 
-A few resources to get you started if this is your first Flutter project:
+3. Інтеграція з API:
+   - Асинхронне завантаження початкових даних через FakeApi з обробкою станів завантаження та можливих помилок.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Пояснення використання Provider
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- context.watch<T>(): Використовується у методах build() основних екранів, де віджет повинен повністю реагувати на будь-які зміни в моделі стану та повністю перебудовуватися при оновленні списку завдань чи статусу.
+
+- context.read<T>(): Використовується виключно всередині методів обробки подій та беків. Це дозволяє отримати доступ до методики моделі без підписки на зміни, запобігаючи зайвим перебудовам віджету.
+
+- select() / Selector: Застосовуються для максимально точкової оптимізації. Завдяки Selector окремі колонки або елементи інтерфейсу слідкують лише за конкретною частиною даних, завдяки чому при зміні однієї картки не перерисовуються інші частини дошки.
+
+- Consumer: Використовується локально всередині піддерева віджетів там, де потрібно обгорнути невеликий шматок UI для реагування на зміни конкретної моделі.
+
+## Звіт про перерисування
+
+Для оптимізації рендерингу та перевірки кількості перебудов у проєкті застосовано виклики debugPrint('build: ...') у ключових віджетах:
+
+- BoardScreen: Перебудовується лише при глобальній зміні стану завантаження (loading, success, error) або повної зміни масиву даних через головний context.watch<BoardModel>().
+- Колонки та картки (ColumnWidget / TaskCardWidget): Завдяки використанню Selector, при додаванні нової задачі чи переміщенні її в інший статус перебудовуються лише ті колонки, яких торкнулися зміни, тоді як інші залишаються незмінними.
+- Форма введення / фільтрація: Ізольовані від загального стану дошки, тому введення тексту в поле чи перемикання фільтрів не спричиняють зайвих перерисовувань карток.
+
+## Скриншоти проєкту
+
+## Як запустити проєкт
+
+- Відкрити проект.
+- Перейти з No Device на Start Medium Phone API 35 mobile emulator (cold boot).
+- Створити новий термінал.
+- Ввести команду futter run.
+
+## Використання ШІ
+
+ШІ не був використаний
