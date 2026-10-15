@@ -25,7 +25,7 @@ class BoardModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _tasks = await _api.fetchTasks();
+      _tasks = List.from(await _api.fetchTasks());
       _status = BoardStateStatus.success;
     } catch (e) {
       _status = BoardStateStatus.error;
